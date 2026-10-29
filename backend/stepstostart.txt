@@ -1,0 +1,21 @@
+if not working delete data folder from c:drive , then in cmd : 
+mkdir C:\data\db
+-----------------------------mongod----------------------------------------------
+
+step 1 - open cmd as administrator, type :  mongod 
+        output will we "waiting for connection" or written text
+
+step 2 - open new simple cmd, type : mongosh 
+          Output will be test>
+
+        (DO NOT CLOSE ANY CMD)  
+mongod
+step 3 - open vscode new ternimal (delete any other opened terminal) , type : 
+         cd backend
+         npm install express mongoose cors bcryptjs jsonwebtoken dotenv multer
+         node server.js 
+
+step 4 - connect with mongodb localhost  in vs code or compass.
+----------------------------------------------------------------------------------
+
+mongod "C:\Program Files\MongoDB\Server\8.2\bin\mongod.exe" --dbpath "C:\data\db"

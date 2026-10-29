@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Homy Bazaar - Premium Indian Grocery Store</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<style>
+:root {
+  --pastel-green: #A8E6CF;
+  --pastel-pink: #FFD3B6;
+  --pastel-yellow: #FFAAA5;
+  --pastel-blue: #A8D0E6;
+  --primary: #2E7D32;
+  --primary-light: #4CAF50;
+  --primary-dark: #1B5E20;
+  --shadow-sm: 0 4px 6px rgba(0,0,0,0.05);
+  --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
+  --glow-green: 0 0 12px rgba(46,125,50,0.5);
+}
+body {
+  background: linear-gradient(135deg, #F1F8E9 0%, #F9FBE7 100%);
+  font-family: 'Inter', sans-serif;
+}
+.font-pacifico { font-family: 'Pacifico', cursive; }
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--glow-green);
+}
+.btn-outline-primary {
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  background: white;
+  transition: all 0.3s ease;
+}
+.btn-outline-primary:hover {
+  background: var(--primary);
+  color: white;
+  box-shadow: var(--glow-green);
+  transform: translateY(-2px);
+}
+.btn-wishlist {
+  background: white;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s;
+}
+.btn-wishlist:hover {
+  background: #ffebee;
+  border-color: #ef5350;
+  color: #ef5350;
+}
+.category-card:nth-child(1) { background: var(--pastel-green); }
+.category-card:nth-child(2) { background: var(--pastel-pink); }
+.category-card:nth-child(3) { background: var(--pastel-yellow); }
+.category-card:nth-child(4) { background: var(--pastel-blue); }
+.category-card {
+  border-radius: 32px;
+  transition: all 0.3s ease;
+}
+.category-card:hover {
+  transform: scale(1.02);
+  filter: brightness(0.97);
+}
+.product-card {
+  background: white;
+  border-radius: 28px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+}
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-md);
+}
+.product-card img {
+  transition: transform 0.5s ease;
+}
+.product-card:hover img {
+  transform: scale(1.05);
+}
+.hero-section {
+  background: linear-gradient(rgba(46,125,50,0.6), rgba(27,94,32,0.7)), url('https://images.unsplash.com/photo-1542838132-92c53300491e?w=1600');
+  background-size: cover;
+  background-position: center;
+}
+.toast {
+  animation: slideIn 0.25s ease;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 2000;
+  padding: 12px 20px;
+  border-radius: 40px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: var(--shadow-md);
+}
+.toast-success { background: linear-gradient(135deg, var(--primary), var(--primary-light)); }
+.toast-error { background: linear-gradient(135deg, #D32F2F, #F44336); }
+@keyframes slideIn { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.cart-slide { transform: translateX(100%); transition: transform 0.3s ease; }
+.cart-slide.open { transform: translateX(0); }
+.overlay { opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+.overlay.active { opacity: 1; visibility: visible; }
+.product-modal { transform: scale(0.9); opacity: 0; transition: all 0.3s ease; }
+.product-modal.active { transform: scale(1); opacity: 1; }
+.payment-modal { transform: translateY(-20px); opacity: 0; transition: all 0.3s ease; }
+.payment-modal.active { transform: translateY(0); opacity: 1; }
+input, textarea, select {
+  border: 1px solid #e2e8f0;
+  border-radius: 40px;
+  padding: 12px 20px;
+  transition: all 0.2s;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(46,125,50,0.2);
+}
+</style>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: { primary: '#2E7D32', secondary: '#4CAF50' },
+      borderRadius: { DEFAULT: '8px', button: '8px' }
+    }
+  }
+}
+</script>
+</head>
+<body class="bg-gradient-to-br from-[#F1F8E9] to-[#F9FBE7]">
+
+<div id="toastContainer"></div>
+
+<header class="bg-white shadow-sm sticky top-0 z-50">
+  <div class="bg-primary text-white text-center py-2 text-sm">
+  </div>
+  <div class="px-4 py-4">
+    <div class="flex items-center justify-between max-w-7xl mx-auto flex-wrap gap-4">
+      <div class="flex items-center space-x-2">
+        <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+          <i class="ri-store-3-fill text-white text-xl"></i>
+        </div>
+        <div>
+          <h1 class="font-['Pacifico'] text-2xl text-primary">Homy Bazaar</h1>
+          <div class="flex items-center space-x-1">
+            <span class="bg-secondary text-white text-xs px-2 py-1 rounded-full">100% Pure Veg</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex-1 max-w-2xl relative">
+        <div class="relative">
+          <input type="text" id="searchInput" placeholder="Search for vegetables, fruits, spices..." class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
+          <div class="absolute left-4 top-1/2 transform -translate-y-1/2"><i class="ri-search-line text-gray-400"></i></div>
+        </div>
+        <div id="searchDropdown" class="absolute top-full left-0 right-0 bg-white border rounded-2xl shadow-lg mt-1 hidden z-50">
+          <div id="searchResults" class="p-4 space-y-2"></div>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-6">
+        <div class="relative cursor-pointer" onclick="toggleCart()">
+          <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full hover:bg-gray-200">
+            <i class="ri-shopping-cart-line text-gray-700"></i>
+          </div>
+          <span id="cartCount" class="absolute -top-2 -right-2 bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">0</span>
+        </div>
+        
+        <a id="accountLink" href="account.html" class="flex items-center space-x-2 cursor-pointer px-4 py-2 rounded-full transition-colors bg-gray-200 hover:bg-gray-300">
+          <i class="ri-user-line text-gray-600"></i>
+          <span id="accountText" class="text-sm font-medium text-gray-800">My Account</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <nav class="bg-gray-50 border-t">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex items-center space-x-8 py-3 overflow-x-auto">
+        <a href="index.html" class="text-sm font-medium text-primary whitespace-nowrap">Home</a>
+        <a href="vegetables.html" class="text-sm font-medium text-gray-700 hover:text-primary whitespace-nowrap">Vegetables & Fruits</a>
+        <a href="spicesmasala.html" class="text-sm font-medium text-gray-700 hover:text-primary whitespace-nowrap">Spices & Masalas</a>
+        <a href="dalpulses.html" class="text-sm font-medium text-gray-700 hover:text-primary whitespace-nowrap">Pulses & Dals</a>
+        <a href="riceflours.html" class="text-sm font-medium text-gray-700 hover:text-primary whitespace-nowrap">Rice & Flours</a>
+        <a href="dairy.html" class="text-sm font-medium text-gray-700 hover:text-primary whitespace-nowrap">Dairy Products</a>
+        <a href="snackbeverages.html" class="text-sm font-medium text-gray-700 hover:text-primary whitespace-nowrap">Snacks & Beverages</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<!-- Hero Section -->
+<section class="hero-section relative min-h-[500px] bg-cover bg-center">
+  <div class="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent"></div>
+  <div class="relative max-w-7xl mx-auto px-4 py-20">
+    <div class="max-w-lg text-white">
+      <h2 class="text-5xl font-bold text-white mb-4 drop-shadow-lg">Fresh & Pure<br>Indian Groceries</h2>
+      <p class="text-xl text-white mb-8 drop-shadow">Experience the finest selection of products delivered fresh to your doorstep.</p>
+      <div class="flex space-x-4">
+        <button onclick="document.getElementById('featured').scrollIntoView({behavior:'smooth'})" class="btn-primary px-8 py-4 rounded-full font-semibold shadow-lg">Shop Now</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Categories -->
+<section class="py-12 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="text-center mb-8">
+      <h3 class="text-3xl font-bold text-primary-dark">Shop by Category</h3>
+      <p class="text-gray-600">Explore our wide range of pure vegetarian products</p>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div onclick="window.location.href='vegetables.html'" class="category-card p-6 text-center cursor-pointer"><div class="w-full h-32 bg-cover bg-center rounded-2xl mb-4" style="background-image: url('https://images.unsplash.com/photo-1597362925123-77861d3fbac7?w=200')"></div><h4 class="font-semibold">Vegetables & Fruits</h4></div>
+      <div onclick="window.location.href='vegetables.html'" class="category-card p-6 text-center cursor-pointer"><div class="w-full h-32 bg-cover bg-center rounded-2xl mb-4" style="background-image: url('https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=200')"></div><h4 class="font-semibold">Fresh Fruits</h4></div>
+      <div onclick="window.location.href='spicesmasala.html'" class="category-card p-6 text-center cursor-pointer"><div class="w-full h-32 bg-cover bg-center rounded-2xl mb-4" style="background-image: url('https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=200')"></div><h4 class="font-semibold">Spices & Masalas</h4></div>
+      <div onclick="window.location.href='dalpulses.html'" class="category-card p-6 text-center cursor-pointer"><div class="w-full h-32 bg-cover bg-center rounded-2xl mb-4" style="background-image: url('https://images.openai.com/static-rsc-4/15tY5CSA4P-dOCgn6COiS6WXIRmGXxIOheaUa8ixJG3T586chw-Jvn75T1yHnLsfDSE5AOlna30y74gPfxBp6rT9_92fVNhvR38MdrxA8L2g9D1Ij-owYwQoZkibuntxg8YXWwnAe5tpVgQFwiaIjmm_iaR1krz-hSnx9UrvXeNp_LixIYKKDGGZmCxgeKU8?purpose=fullsize')"></div><h4 class="font-semibold">Pulses & Dals</h4></div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Products -->
+<section id="featured" class="py-12 bg-white">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="text-center mb-8">
+      <h3 class="text-3xl font-bold text-primary-dark">Featured Products</h3>
+      <p class="text-gray-600">Handpicked premium quality products for you</p>
+    </div>
+    <div id="productGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-gray-50 pt-12 pb-6">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+      <div><div class="flex items-center space-x-2 mb-4"><div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center"><i class="ri-store-3-fill text-white"></i></div><h4 class="font-['Pacifico'] text-xl text-primary">Homy Bazaar</h4></div><p class="text-gray-600 text-sm">Homy Bazaar blends quality, convenience, and trust to redefine your grocery shopping experience. Carefully selected products, delivered with care</p></div>
+      <div><h5 class="font-semibold mb-4">Quick Links</h5><ul class="space-y-2 text-sm text-gray-600"><li><a href="#" class="hover:text-primary">About Us</a></li><li><a href="#" class="hover:text-primary">Contact</a></li><li><a href="#" class="hover:text-primary">FAQs</a></li></ul></div>
+      <div><h5 class="font-semibold mb-4">Customer Support</h5><ul class="space-y-2 text-sm text-gray-600"><li><i class="ri-phone-line"></i> 1800-123-4567</li><li><i class="ri-mail-line"></i> support@homybazaar.com</li></ul></div>
+      <div><h5 class="font-semibold mb-4">Application Coming Soon </h5><div class="space-y-2"><div class="bg-gray-900 text-white px-4 py-2 rounded-full text-center cursor-pointer">Google Play</div><div class="bg-gray-900 text-white px-4 py-2 rounded-full text-center cursor-pointer">App Store</div></div></div>
+    </div>
+    <div class="border-t pt-6 text-center text-sm text-gray-600"><p>&copy; 2026 Homy Bazaar. All rights reserved.</p></div>
+  </div>
+</footer>
+
+<!-- Cart Sidebar -->
+<div id="cartOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 overlay"></div>
+<div id="cartSidebar" class="fixed top-0 right-0 w-96 h-full bg-white shadow-xl z-50 cart-slide flex flex-col">
+  <div class="flex items-center justify-between p-4 border-b"><h3 class="text-lg font-semibold">Shopping Cart</h3><button onclick="toggleCart()" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full"><i class="ri-close-line"></i></button></div>
+  <div id="cartItems" class="flex-1 overflow-y-auto p-4"></div>
+  <div id="cartFooter" class="border-t p-4 hidden"><div class="flex justify-between mb-4"><span class="font-semibold">Total:</span><span id="cartTotal" class="font-bold text-lg text-primary">₹0</span></div><button onclick="checkoutCart()" class="w-full btn-primary py-3 rounded-full font-semibold">Proceed to Checkout</button></div>
+</div>
+
+<!-- Product Modal -->
+<div id="productModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 overlay flex items-center justify-center p-4">
+  <div id="productModalContainer" class="bg-white rounded-3xl max-w-3xl w-full product-modal max-h-[90vh] overflow-y-auto">
+    <div class="p-6"><div class="flex justify-between items-center mb-4"><h3 class="text-xl font-semibold">Product Details</h3><button onclick="closeProductModal()" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full"><i class="ri-close-line"></i></button></div><div id="productModalContent"></div></div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div id="paymentModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 overlay flex items-center justify-center p-4">
+  <div id="paymentModal" class="bg-white rounded-3xl max-w-md w-full payment-modal">
+    <div class="p-6"><div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold">Secure Checkout</h3><button onclick="closePayment()" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full"><i class="ri-close-line"></i></button></div>
+      <div class="bg-gray-50 p-4 rounded-2xl mb-4"><div class="flex justify-between"><span>Subtotal:</span><span id="paymentSubtotal">₹0</span></div><div class="flex justify-between"><span>Delivery:</span><span class="text-green-600">Free</span></div><div class="border-t mt-2 pt-2 flex justify-between font-semibold"><span>Total:</span><span id="paymentTotal">₹0</span></div></div>
+      <div class="mb-4"><h4 class="font-semibold mb-3">Payment Method</h4><div class="space-y-2"><label class="flex items-center space-x-3 p-3 border rounded-2xl cursor-pointer"><input type="radio" name="payment" value="upi" class="hidden"><div class="w-4 h-4 border-2 border-gray-300 rounded-full flex items-center justify-center"><div class="w-2 h-2 bg-primary rounded-full hidden"></div></div><i class="ri-smartphone-line"></i><span>UPI</span></label><label class="flex items-center space-x-3 p-3 border rounded-2xl cursor-pointer"><input type="radio" name="payment" value="card" class="hidden"><div class="w-4 h-4 border-2 border-gray-300 rounded-full flex items-center justify-center"><div class="w-2 h-2 bg-primary rounded-full hidden"></div></div><i class="ri-bank-card-line"></i><span>Card</span></label><label class="flex items-center space-x-3 p-3 border rounded-2xl cursor-pointer"><input type="radio" name="payment" value="cod" class="hidden"><div class="w-4 h-4 border-2 border-gray-300 rounded-full flex items-center justify-center"><div class="w-2 h-2 bg-primary rounded-full hidden"></div></div><i class="ri-cash-line"></i><span>Cash on Delivery</span></label></div></div>
+      <div id="paymentForms"><div id="upiForm" class="hidden space-y-3"><input type="text" id="upiId" placeholder="UPI ID (e.g., name@bank)" class="w-full p-3 border rounded-full"><input type="password" id="upiPin" placeholder="UPI PIN" maxlength="4" class="w-full p-3 border rounded-full"></div><div id="cardForm" class="hidden space-y-3"><input type="text" id="cardNumber" placeholder="Card Number" class="w-full p-3 border rounded-full"><div class="flex gap-3"><input type="text" id="expiry" placeholder="MM/YY" class="flex-1 p-3 border rounded-full"><input type="text" id="cvv" placeholder="CVV" class="flex-1 p-3 border rounded-full"></div></div><div id="codForm" class="hidden"><textarea id="addressInput" rows="3" placeholder="Delivery Address" class="w-full p-3 border rounded-full"></textarea></div></div>
+      <button onclick="processPayment()" id="payButton" class="w-full btn-primary py-3 rounded-full font-semibold mt-4">Pay Securely</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---------------------- YOUR ORIGINAL JAVASCRIPT (unchanged) ----------------------
+const API_BASE = 'http://localhost:5000/api';
+let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+let token = localStorage.getItem('token') || null;
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+let products = [];
+let itemsBeingPurchased = [];
+
+function getAuthHeaders() {
+    const token = localStorage.getItem('token');
+    return { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' };
+}
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `<i class="${type === 'success' ? 'ri-check-line' : 'ri-alert-line'}"></i><span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+function updateHeaderUI() {
+  const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+  const accountLink = document.getElementById('accountLink');
+  const accountText = document.getElementById('accountText');
+  if (currentUser) {
+    accountLink.classList.remove('bg-gray-200');
+    accountLink.classList.add('bg-primary', 'hover:bg-orange-600');
+    accountText.textContent = `Hello, ${currentUser.name.split(' ')[0]}`;
+    accountText.classList.remove('text-gray-800');
+    accountText.classList.add('text-white');
+    accountLink.querySelector('i').classList.remove('text-gray-600');
+    accountLink.querySelector('i').classList.add('text-white');
+  } else {
+    accountLink.classList.remove('bg-primary', 'hover:bg-orange-600');
+    accountLink.classList.add('bg-gray-200');
+    accountText.textContent = 'My Account';
+    accountText.classList.remove('text-white');
+    accountText.classList.add('text-gray-800');
+    accountLink.querySelector('i').classList.remove('text-white');
+    accountLink.querySelector('i').classList.add('text-gray-600');
+  }
+}
+async function loadProducts() {
+  try {
+    const response = await fetch(`${API_BASE}/products`);
+    products = await response.json();
+    const productGrid = document.getElementById('productGrid');
+    productGrid.innerHTML = products.slice(0, 10).map(product => `
+      <div class="product-card p-4">
+        <img src="${product.image}" alt="${product.name}" class="w-full h-40 object-cover rounded-2xl cursor-pointer mb-3" onclick="openProductModal('${product._id}')">
+        <h4 class="font-medium cursor-pointer hover:text-primary" onclick="openProductModal('${product._id}')">${product.name}</h4>
+        <div class="flex items-center text-yellow-400 text-sm mb-2">${getRatingStars(product.rating || 4.5)}</div>
+        <div class="flex justify-between items-center"><span class="text-primary font-bold">₹${product.price}</span><span class="text-gray-500 text-sm">/${product.unit}</span></div>
+        <button onclick="addToCart('${product._id}')" class="w-full btn-primary py-2 rounded-full font-medium mt-3">Add to Cart</button>
+      </div>
+    `).join('');
+  } catch (error) {
+    console.error(error);
+    document.getElementById('productGrid').innerHTML = '<p class="text-center text-gray-500 col-span-full">Failed to load products</p>';
+  }
+}
+function getRatingStars(rating) {
+  const full = Math.floor(rating);
+  let stars = '';
+  for (let i = 0; i < 5; i++) stars += `<i class="${i < full ? 'ri-star-fill' : 'ri-star-line'}"></i>`;
+  return `<div class="flex">${stars} <span class="ml-1 text-gray-500">(${rating})</span></div>`;
+}
+function updateCartUI() {
+  localStorage.setItem('cart', JSON.stringify(cart));
+  const cartCount = document.getElementById('cartCount');
+  const cartItems = document.getElementById('cartItems');
+  const cartFooter = document.getElementById('cartFooter');
+  const cartTotal = document.getElementById('cartTotal');
+  const totalItems = cart.reduce((sum, i) => sum + i.quantity, 0);
+  const totalPrice = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+  if (cartCount) cartCount.textContent = totalItems;
+  if (cartItems) {
+    if (cart.length === 0) {
+      cartItems.innerHTML = `<div class="text-center text-gray-500 py-8"><i class="ri-shopping-cart-line text-4xl"></i><p>Your cart is empty</p></div>`;
+      cartFooter.classList.add('hidden');
+    } else {
+      cartItems.innerHTML = cart.map(item => `
+        <div class="flex gap-3 py-3 border-b"><img src="${item.image}" class="w-16 h-16 object-cover rounded-2xl"><div class="flex-1"><h5 class="font-medium">${item.name}</h5><p class="text-primary">₹${item.price}/${item.unit}</p><div class="flex items-center gap-2 mt-2"><button onclick="updateQuantity('${item._id}', -1)" class="w-8 h-8 bg-gray-100 rounded-full hover:bg-gray-200">-</button><span>${item.quantity}</span><button onclick="updateQuantity('${item._id}', 1)" class="w-8 h-8 bg-gray-100 rounded-full hover:bg-gray-200">+</button></div></div><div class="text-right"><p class="font-semibold">₹${item.price * item.quantity}</p><button onclick="removeFromCart('${item._id}')" class="text-red-500 text-sm">Remove</button></div></div>
+      `).join('');
+      cartFooter.classList.remove('hidden');
+      cartTotal.textContent = `₹${totalPrice}`;
+    }
+  }
+}
+function addToCart(productId) {
+  const product = products.find(p => p._id === productId);
+  if (!product) return;
+  const existing = cart.find(i => i._id === productId);
+  if (existing) existing.quantity++;
+  else cart.push({ ...product, quantity: 1 });
+  updateCartUI();
+  showToast(`${product.name} added to cart!`);
+}
+function removeFromCart(productId) {
+  cart = cart.filter(i => i._id !== productId);
+  updateCartUI();
+}
+function updateQuantity(productId, change) {
+  const item = cart.find(i => i._id === productId);
+  if (item) {
+    item.quantity += change;
+    if (item.quantity <= 0) removeFromCart(productId);
+    else updateCartUI();
+  }
+}
+function toggleCart() {
+  document.getElementById('cartOverlay').classList.toggle('active');
+  document.getElementById('cartSidebar').classList.toggle('open');
+}
+async function openProductModal(productId) {
+  let product = products.find(p => p._id === productId);
+  if (!product) {
+    const res = await fetch(`${API_BASE}/products/${productId}`);
+    product = await res.json();
+  }
+  const modalContent = document.getElementById('productModalContent');
+  modalContent.innerHTML = `
+    <div class="grid md:grid-cols-2 gap-6"><img src="${product.image}" class="w-full rounded-2xl"><div><h2 class="text-2xl font-bold">${product.name}</h2><div class="flex items-center text-yellow-400 my-2">${getRatingStars(product.rating || 4.5)}</div><div class="text-3xl font-bold text-primary">₹${product.price}<span class="text-base text-gray-500">/${product.unit}</span></div><p class="text-gray-600 my-4">${product.description || 'Fresh and high quality product.'}</p><button onclick="addToCart('${product._id}'); closeProductModal();" class="w-full btn-primary py-3 rounded-full font-semibold">Add to Cart</button><button onclick="buyNow('${product._id}'); closeProductModal();" class="w-full mt-2 border border-primary text-primary py-3 rounded-full font-semibold hover:bg-primary hover:text-white transition">Buy Now</button><button onclick="addToWishlist('${product._id}')" class="w-full mt-2 btn-wishlist py-2 rounded-full">❤️ Add to Wishlist</button></div></div>
+  `;
+  document.getElementById('productModalOverlay').classList.add('active');
+  document.getElementById('productModalContainer').classList.add('active');
+}
+function closeProductModal() {
+  document.getElementById('productModalOverlay').classList.remove('active');
+  document.getElementById('productModalContainer').classList.remove('active');
+}
+async function addToWishlist(productId) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showToast('Please login first', 'error');
+        window.location.href = 'account.html';
+        return;
+    }
+    try {
+        const res = await fetch('http://localhost:5000/api/wishlist', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ productId })
+        });
+        const data = await res.json();
+        if(res.ok && data.success) {
+            showToast('Added to wishlist!');
+        } else {
+            showToast(data.message || 'Already in wishlist', 'error');
+        }
+    } catch(e) {
+        console.error('Wishlist error:', e);
+        showToast('Server error', 'error');
+    }
+}
+function buyNow(productId) {
+  const product = products.find(p => p._id === productId);
+  if (product) openPayment([{ ...product, quantity: 1, _id: product._id }]);
+}
+function checkoutCart() {
+  if (cart.length === 0) return showToast('Cart is empty', 'error');
+  toggleCart();
+  openPayment(cart.map(item => ({ ...item, _id: item._id })));
+}
+function openPayment(items) {
+  const user = localStorage.getItem('currentUser');
+  if (!user) return showToast('Please login to checkout', 'error');
+  itemsBeingPurchased = items;
+  const total = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+  document.getElementById('paymentSubtotal').textContent = `₹${total}`;
+  document.getElementById('paymentTotal').textContent = `₹${total}`;
+  document.getElementById('paymentModalOverlay').classList.add('active');
+  document.getElementById('paymentModal').classList.add('active');
+  const userData = JSON.parse(user);
+  const addressInput = document.getElementById('addressInput');
+  if (addressInput && userData.addresses && userData.addresses[0]) {
+    const addr = userData.addresses[0];
+    addressInput.value = `${addr.street}, ${addr.city}, ${addr.state} - ${addr.zip}, Ph: ${addr.phone}`;
+  }
+}
+function closePayment() {
+  document.getElementById('paymentModalOverlay').classList.remove('active');
+  document.getElementById('paymentModal').classList.remove('active');
+  document.querySelectorAll('input[name="payment"]').forEach(r => r.checked = false);
+  document.getElementById('upiForm').classList.add('hidden');
+  document.getElementById('cardForm').classList.add('hidden');
+  document.getElementById('codForm').classList.add('hidden');
+}
+async function processPayment() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showToast('Please login first', 'error');
+        window.location.href = 'account.html';
+        return;
+    }
+    const selectedPayment = document.querySelector('input[name="payment"]:checked');
+    if (!selectedPayment) {
+        showToast('Please select a payment method.', 'error');
+        return;
+    }
+    const method = selectedPayment.value;
+    let isValid = false;
+    if (method === 'upi') {
+        const upiId = document.getElementById('upiId').value;
+        const upiPin = document.getElementById('upiPin').value;
+        if (upiId && upiId.includes('@') && upiPin.length === 4) isValid = true;
+        else showToast('Invalid UPI details', 'error');
+    } else if (method === 'card') {
+        const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+        const expiry = document.getElementById('expiry').value;
+        const cvv = document.getElementById('cvv').value;
+        if (cardNumber.length === 16 && expiry.match(/^\d{2}\/\d{2}$/) && cvv.length === 3) isValid = true;
+        else showToast('Invalid card details', 'error');
+    } else if (method === 'cod') {
+        const address = document.getElementById('addressInput').value;
+        if (address && address.length > 10) isValid = true;
+        else showToast('Please enter delivery address', 'error');
+    }
+    if (!isValid) return;
+    const payButton = document.getElementById('payButton');
+    payButton.innerHTML = '<i class="ri-loader-4-line animate-spin mr-2"></i>Processing...';
+    payButton.disabled = true;
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const orderData = {
+        items: itemsBeingPurchased.map(item => ({ productId: item._id || item.id, quantity: item.quantity, price: item.price })),
+        totalAmount: itemsBeingPurchased.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+        paymentMethod: method,
+        shippingAddress: method === 'cod' ? document.getElementById('addressInput').value : 'Address saved in profile'
+    };
+    try {
+        const res = await fetch('http://localhost:5000/api/orders', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(orderData)
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+            showToast('Order placed successfully!');
+            const purchasedIds = itemsBeingPurchased.map(item => item._id || item.id);
+            cart = cart.filter(item => !purchasedIds.includes(item._id || item.id));
+            updateCartUI();
+            closePayment();
+            setTimeout(() => window.location.href = 'account.html', 1500);
+        } else {
+            throw new Error(data.message || 'Order failed');
+        }
+    } catch (error) {
+        console.error(error);
+        showToast(error.message || 'Payment failed. Try again.', 'error');
+        payButton.innerHTML = '<div class="w-5 h-5 flex items-center justify-center mr-2 inline-flex"><i class="ri-secure-payment-line"></i></div>Pay Securely';
+        payButton.disabled = false;
+    }
+}
+const searchInput = document.getElementById('searchInput');
+const searchDropdown = document.getElementById('searchDropdown');
+const searchResults = document.getElementById('searchResults');
+let searchTimeout;
+if (searchInput) {
+  searchInput.addEventListener('focus', () => searchDropdown.classList.remove('hidden'));
+  searchInput.addEventListener('blur', () => setTimeout(() => searchDropdown.classList.add('hidden'), 200));
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      const query = e.target.value.toLowerCase().trim();
+      if (query.length > 0) {
+        const filtered = products.filter(p => p.name.toLowerCase().includes(query));
+        searchResults.innerHTML = filtered.slice(0, 8).map(p => `
+          <div class="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer border-b" onclick="openProductModal('${p._id}')">
+            <img src="${p.image}" class="w-12 h-12 object-cover rounded-full"><div><div class="font-medium">${p.name}</div><div class="text-primary">₹${p.price}</div></div>
+          </div>
+        `).join('');
+        if (filtered.length === 0) searchResults.innerHTML = '<div class="text-center text-gray-500 py-4">No products found</div>';
+      } else searchResults.innerHTML = '';
+    }, 300);
+  });
+}
+document.querySelectorAll('input[name="payment"]').forEach(radio => {
+  radio.addEventListener('change', function() {
+    document.getElementById('upiForm').classList.add('hidden');
+    document.getElementById('cardForm').classList.add('hidden');
+    document.getElementById('codForm').classList.add('hidden');
+    if (this.value === 'upi') document.getElementById('upiForm').classList.remove('hidden');
+    else if (this.value === 'card') document.getElementById('cardForm').classList.remove('hidden');
+    else if (this.value === 'cod') document.getElementById('codForm').classList.remove('hidden');
+    document.querySelectorAll('input[name="payment"]').forEach(r => {
+      r.closest('label').querySelector('.w-2.h-2').classList.add('hidden');
+    });
+    this.closest('label').querySelector('.w-2.h-2').classList.remove('hidden');
+  });
+});
+const cartOverlay = document.getElementById('cartOverlay');
+if (cartOverlay) cartOverlay.addEventListener('click', toggleCart);
+const urlParams = new URLSearchParams(window.location.search);
+const buyProductId = urlParams.get('buy');
+if (buyProductId) {
+  setTimeout(() => {
+    const product = products.find(p => p._id === buyProductId);
+    if (product) buyNow(buyProductId);
+  }, 1000);
+}
+document.addEventListener('DOMContentLoaded', () => {
+  updateHeaderUI();
+  updateCartUI();
+  loadProducts();
+  window.addEventListener('storage', updateHeaderUI);
+});
+</script>
+</body>
+</html>

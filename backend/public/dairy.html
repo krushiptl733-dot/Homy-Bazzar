@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dairy Products - Homy Bazaar</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<style>
+:root {
+  --pastel-green: #A8E6CF;
+  --pastel-pink: #FFD3B6;
+  --pastel-yellow: #FFAAA5;
+  --pastel-blue: #A8D0E6;
+  --primary: #2E7D32;
+  --primary-light: #4CAF50;
+  --primary-dark: #1B5E20;
+  --shadow-sm: 0 4px 6px rgba(0,0,0,0.05);
+  --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
+  --glow-green: 0 0 12px rgba(46,125,50,0.5);
+}
+body {
+  background: linear-gradient(135deg, #F1F8E9 0%, #F9FBE7 100%);
+  font-family: 'Inter', sans-serif;
+}
+.font-pacifico { font-family: 'Pacifico', cursive; }
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--glow-green);
+}
+.btn-outline-primary {
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  background: white;
+  transition: all 0.3s ease;
+}
+.btn-outline-primary:hover {
+  background: var(--primary);
+  color: white;
+  box-shadow: var(--glow-green);
+  transform: translateY(-2px);
+}
+.btn-wishlist {
+  background: white;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s;
+}
+.btn-wishlist:hover {
+  background: #ffebee;
+  border-color: #ef5350;
+  color: #ef5350;
+}
+.category-card:nth-child(1) { background: var(--pastel-green); }
+.category-card:nth-child(2) { background: var(--pastel-pink); }
+.category-card:nth-child(3) { background: var(--pastel-yellow); }
+.category-card:nth-child(4) { background: var(--pastel-blue); }
+.category-card {
+  border-radius: 32px;
+  transition: all 0.3s ease;
+}
+.category-card:hover {
+  transform: scale(1.02);
+  filter: brightness(0.97);
+}
+.product-card {
+  background: white;
+  border-radius: 28px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+}
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-md);
+}
+.product-card img {
+  transition: transform 0.5s ease;
+}
+.product-card:hover img {
+  transform: scale(1.05);
+}
+.hero-section {
+  background: linear-gradient(rgba(46,125,50,0.6), rgba(27,94,32,0.7)), url('https://images.unsplash.com/photo-1542838132-92c53300491e?w=1600');
+  background-size: cover;
+  background-position: center;
+}
+.toast {
+  animation: slideIn 0.25s ease;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 2000;
+  padding: 12px 20px;
+  border-radius: 40px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: var(--shadow-md);
+}
+.toast-success { background: linear-gradient(135deg, var(--primary), var(--primary-light)); }
+.toast-error { background: linear-gradient(135deg, #D32F2F, #F44336); }
+@keyframes slideIn { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.cart-slide { transform: translateX(100%); transition: transform 0.3s ease; }
+.cart-slide.open { transform: translateX(0); }
+.overlay { opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+.overlay.active { opacity: 1; visibility: visible; }
+.product-modal { transform: scale(0.9); opacity: 0; transition: all 0.3s ease; }
+.product-modal.active { transform: scale(1); opacity: 1; }
+.payment-modal { transform: translateY(-20px); opacity: 0; transition: all 0.3s ease; }
+.payment-modal.active { transform: translateY(0); opacity: 1; }
+input, textarea, select {
+  border: 1px solid #e2e8f0;
+  border-radius: 40px;
+  padding: 12px 20px;
+  transition: all 0.2s;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(46,125,50,0.2);
+}
+</style>
+<script>tailwind.config = {
+  theme: {
+    extend: {
+      colors: { primary: '#2E7D32', secondary: '#4CAF50' },
+      borderRadius: { DEFAULT: '8px', button: '8px' }
+    }
+  }
+}
+</script>
+</head>
+<body class="bg-gradient-to-br from-[#F1F8E9] to-[#F9FBE7]">
+
+<div id="toastContainer"></div>
+
+<!-- Header (identical to index) -->
+<header class="bg-white shadow-sm sticky top-0 z-50">
+  <div class="bg-primary text-white text-center py-2 text-sm">
+  </div>
+  <div class="px-4 py-4">
+    <div class="flex items-center justify-between max-w-7xl mx-auto flex-wrap gap-4">
+      <div class="flex items-center space-x-2">
+        <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+          <i class="ri-store-3-fill text-white text-xl"></i>
+        </div>
+        <div>
+          <h1 class="font-['Pacifico'] text-2xl text-primary">Homy Bazaar</h1>
+          <div class="flex items-center space-x-1">
+            <span class="bg-secondary text-white text-xs px-2 py-1 rounded-full">100% Pure Veg</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex-1 max-w-2xl relative">
+        <div class="relative">
+          <input type="text" id="searchInput" placeholder="Search for vegetables, fruits, spices..." class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
+          <div class="absolute left-4 top-1/2 transform -translate-y-1/2"><i class="ri-search-line text-gray-400"></i></div>
+        </div>
+        <div id="searchDropdown" class="absolute top-full left-0 right-0 bg-white border rounded-2xl shadow-lg mt-1 hidden z-50">
+          <div id="searchResults" class="p-4 space-y-2"></div>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-6">
+        <div class="relative cursor-pointer" onclick="toggleCart()">
+          <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full hover:bg-gray-200">
+            <i class="ri-shopping-cart-line text-gray-700"></i>
+          </div>
+          <span id="cartCount" class="absolute -top-2 -right-2 bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">0</span>
+        </div>
+        
+        <a id="accountLink" href="account.html" class="flex items-center space-x-2 cursor-pointer px-4 py-2 rounded-full transition-colors bg-gray-200 hover:bg-gray-300">
+          <i class="ri-user-line text-gray-600"></i>
+          <span id="accountText" class="text-sm font-medium text-gray-800">My Account</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <nav class="bg-gray-50 border-t">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex items-center space-x-8 py-3 overflow-x-auto">
+        <a href="index.html" class="text-sm font-medium text-gray-700 hover:text-primary whitespace-nowrap">Home</a>
+        <a href="vegetables.html" class="text-sm font-medium text-gray-700 hover:text-primary whitespace-nowrap">Fresh Vegetables</a>
+        <a href="spicesmasala.html" class="text-sm font-medium text-gray-700 hover:text-primary whitespace-nowrap">Spices & Masalas</a>
+        <a href="dalpulses.html" class="text-sm font-medium text-gray-700 hover:text-primary whitespace-nowrap">Pulses & Dals</a>
+        <a href="riceflours.html" class="text-sm font-medium text-gray-700 hover:text-primary whitespace-nowrap">Rice & Flours</a>
+        <a href="#" class="text-sm font-medium text-primary whitespace-nowrap">Dairy Products</a>
+        <a href="snackbeverages.html" class="text-sm font-medium text-gray-700 hover:text-primary whitespace-nowrap">Snacks & Beverages</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+
+<!-- Main Content with Filters -->
+<div class="flex max-w-7xl mx-auto px-4 py-8 gap-8">
+  <!-- Filters Sidebar -->
+  <aside class="w-72 flex-shrink-0 hidden md:block">
+    <div class="bg-white/90 backdrop-blur-sm p-6 rounded-3xl shadow-sm sticky top-28">
+      <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="ri-filter-3-line text-primary"></i> Filters</h3>
+      
+      <!-- Price Range -->
+      <div class="mb-6">
+        <h4 class="font-semibold text-gray-700 mb-3">Price Range</h4>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="priceFilter" value="all" checked class="w-4 h-4 text-primary"><span class="text-sm text-gray-600">All Prices</span></label>
+          <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="priceFilter" value="under50" class="w-4 h-4 text-primary"><span class="text-sm text-gray-600">Under ₹50</span></label>
+          <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="priceFilter" value="50-100" class="w-4 h-4 text-primary"><span class="text-sm text-gray-600">₹50 - ₹100</span></label>
+          <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="priceFilter" value="100-200" class="w-4 h-4 text-primary"><span class="text-sm text-gray-600">₹100 - ₹200</span></label>
+          <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="priceFilter" value="above200" class="w-4 h-4 text-primary"><span class="text-sm text-gray-600">Above ₹200</span></label>
+        </div>
+      </div>
+
+      <!-- Sort By -->
+      <div class="mb-6">
+        <h4 class="font-semibold text-gray-700 mb-3">Sort By</h4>
+        <select id="sortSelect" class="w-full p-2 border border-gray-200 rounded-full text-sm focus:ring-2 focus:ring-primary">
+          <option value="default">Default</option>
+          <option value="price_asc">Price: Low to High</option>
+          <option value="price_desc">Price: High to Low</option>
+          <option value="name_asc">Name: A to Z</option>
+          <option value="rating_desc">Highest Rated</option>
+        </select>
+      </div>
+
+      <!-- Stock Filter -->
+      <div class="mb-6">
+        <h4 class="font-semibold text-gray-700 mb-3">Availability</h4>
+        <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="inStockOnly" class="w-4 h-4 text-primary rounded"><span class="text-sm text-gray-600">In Stock Only</span></label>
+      </div>
+
+      <!-- Rating Filter -->
+      <div class="mb-6">
+        <h4 class="font-semibold text-gray-700 mb-3">Customer Rating</h4>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="ratingFilter" value="4.5" class="w-4 h-4 text-primary"><span class="text-sm text-gray-600">4.5 Stars & Up</span></label>
+          <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="ratingFilter" value="4.0" class="w-4 h-4 text-primary"><span class="text-sm text-gray-600">4.0 Stars & Up</span></label>
+          <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="ratingFilter" value="3.5" class="w-4 h-4 text-primary"><span class="text-sm text-gray-600">3.5 Stars & Up</span></label>
+          <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="ratingFilter" value="3.0" class="w-4 h-4 text-primary"><span class="text-sm text-gray-600">3.0 Stars & Up</span></label>
+        </div>
+      </div>
+
+      <button onclick="resetFilters()" class="w-full mt-4 py-2 border border-gray-300 rounded-full text-sm text-gray-600 hover:bg-gray-50 transition">Reset Filters</button>
+    </div>
+  </aside>
+
+  <!-- Products Main Section -->
+  <main class="flex-1">
+    <div class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-sm p-6">
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+        <div>
+          <h3 class="text-2xl font-bold text-gray-800">Milk & Dairy Products</h3>
+          
+        </div>
+        <div class="flex items-center gap-3">
+          <span id="productCount" class="text-sm text-gray-500"></span>
+          <button onclick="toggleMobileFilters()" class="md:hidden bg-gray-100 px-4 py-2 rounded-full text-sm flex items-center gap-2">
+            <i class="ri-filter-3-line"></i> Filters
+          </button>
+        </div>
+      </div>
+      
+      <div id="loadingSpinner" class="text-center py-12">
+        <i class="ri-loader-4-line animate-spin text-4xl text-primary"></i>
+        <p class="text-gray-500 mt-2">Loading products...</p>
+      </div>
+      
+      <div id="productGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+      
+      <div id="noResults" class="text-center py-12 hidden">
+        <i class="ri-emotion-sad-line text-5xl text-gray-400"></i>
+        <p class="text-gray-500 mt-2">No products found matching your filters.</p>
+        <button onclick="resetFilters()" class="mt-4 text-primary hover:underline">Clear filters</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Mobile Filters Modal -->
+<div id="mobileFilterModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+  <div class="bg-white rounded-3xl max-w-sm w-full p-6">
+    <div class="flex justify-between items-center mb-4"><h3 class="text-xl font-bold">Filters</h3><button onclick="toggleMobileFilters()"><i class="ri-close-line text-2xl"></i></button></div>
+    <div class="space-y-4">
+      <div><h4 class="font-semibold mb-2">Price Range</h4><div class="space-y-2"><label class="flex items-center gap-2"><input type="radio" name="mobilePrice" value="all" class="mobile-price-radio"> All Prices</label><label><input type="radio" name="mobilePrice" value="under50"> Under ₹50</label><label><input type="radio" name="mobilePrice" value="50-100"> ₹50-₹100</label><label><input type="radio" name="mobilePrice" value="100-200"> ₹100-₹200</label><label><input type="radio" name="mobilePrice" value="above200"> Above ₹200</label></div></div>
+      <div><h4 class="font-semibold mb-2">Sort By</h4><select id="mobileSortSelect" class="w-full p-2 border rounded-full"><option value="default">Default</option><option value="price_asc">Price: Low to High</option><option value="price_desc">Price: High to Low</option><option value="name_asc">Name: A to Z</option><option value="rating_desc">Highest Rated</option></select></div>
+      <div><label class="flex items-center gap-2"><input type="checkbox" id="mobileInStockOnly"> In Stock Only</label></div>
+      <div><h4 class="font-semibold mb-2">Rating</h4><div class="space-y-2"><label><input type="radio" name="mobileRating" value="4.5"> 4.5+</label><label><input type="radio" name="mobileRating" value="4.0"> 4.0+</label><label><input type="radio" name="mobileRating" value="3.5"> 3.5+</label><label><input type="radio" name="mobileRating" value="3.0"> 3.0+</label></div></div>
+      <button onclick="applyMobileFilters()" class="w-full btn-primary py-2 rounded-full">Apply Filters</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cart Sidebar -->
+<div id="cartOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 overlay"></div>
+<div id="cartSidebar" class="fixed top-0 right-0 w-96 h-full bg-white shadow-xl z-50 cart-slide flex flex-col">
+  <div class="flex items-center justify-between p-4 border-b"><h3 class="text-lg font-semibold">Shopping Cart</h3><button onclick="toggleCart()" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full"><i class="ri-close-line"></i></button></div>
+  <div id="cartItems" class="flex-1 overflow-y-auto p-4"></div>
+  <div id="cartFooter" class="border-t p-4 hidden"><div class="flex justify-between mb-4"><span class="font-semibold">Total:</span><span id="cartTotal" class="font-bold text-lg text-primary">₹0</span></div><button onclick="checkoutCart()" class="w-full btn-primary py-3 rounded-full font-semibold">Proceed to Checkout</button></div>
+</div>
+
+<!-- Product Modal -->
+<div id="productModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 overlay flex items-center justify-center p-4">
+  <div id="productModalContainer" class="bg-white rounded-3xl max-w-3xl w-full product-modal max-h-[90vh] overflow-y-auto">
+    <div class="p-6"><div class="flex justify-between items-center mb-4"><h3 class="text-xl font-semibold">Product Details</h3><button onclick="closeProductModal()" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full"><i class="ri-close-line"></i></button></div><div id="productModalContent"></div></div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div id="paymentModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 overlay flex items-center justify-center p-4">
+  <div id="paymentModal" class="bg-white rounded-3xl max-w-md w-full payment-modal">
+    <div class="p-6"><div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold">Secure Checkout</h3><button onclick="closePayment()" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full"><i class="ri-close-line"></i></button></div>
+      <div class="bg-gray-50 p-4 rounded-2xl mb-4"><div class="flex justify-between"><span>Subtotal:</span><span id="paymentSubtotal">₹0</span></div><div class="flex justify-between"><span>Delivery:</span><span class="text-green-600">Free</span></div><div class="border-t mt-2 pt-2 flex justify-between font-semibold"><span>Total:</span><span id="paymentTotal">₹0</span></div></div>
+      <div class="mb-4"><h4 class="font-semibold mb-3">Payment Method</h4><div class="space-y-2"><label class="flex items-center space-x-3 p-3 border rounded-2xl cursor-pointer"><input type="radio" name="payment" value="upi" class="hidden"><div class="w-4 h-4 border-2 border-gray-300 rounded-full flex items-center justify-center"><div class="w-2 h-2 bg-primary rounded-full hidden"></div></div><i class="ri-smartphone-line"></i><span>UPI</span></label><label class="flex items-center space-x-3 p-3 border rounded-2xl cursor-pointer"><input type="radio" name="payment" value="card" class="hidden"><div class="w-4 h-4 border-2 border-gray-300 rounded-full flex items-center justify-center"><div class="w-2 h-2 bg-primary rounded-full hidden"></div></div><i class="ri-bank-card-line"></i><span>Card</span></label><label class="flex items-center space-x-3 p-3 border rounded-2xl cursor-pointer"><input type="radio" name="payment" value="cod" class="hidden"><div class="w-4 h-4 border-2 border-gray-300 rounded-full flex items-center justify-center"><div class="w-2 h-2 bg-primary rounded-full hidden"></div></div><i class="ri-cash-line"></i><span>Cash on Delivery</span></label></div></div>
+      <div id="paymentForms"><div id="upiForm" class="hidden space-y-3"><input type="text" id="upiId" placeholder="UPI ID (e.g., name@bank)" class="w-full p-3 border rounded-full"><input type="password" id="upiPin" placeholder="UPI PIN" maxlength="4" class="w-full p-3 border rounded-full"></div><div id="cardForm" class="hidden space-y-3"><input type="text" id="cardNumber" placeholder="Card Number" class="w-full p-3 border rounded-full"><div class="flex gap-3"><input type="text" id="expiry" placeholder="MM/YY" class="flex-1 p-3 border rounded-full"><input type="text" id="cvv" placeholder="CVV" class="flex-1 p-3 border rounded-full"></div></div><div id="codForm" class="hidden"><textarea id="addressInput" rows="3" placeholder="Delivery Address" class="w-full p-3 border rounded-full"></textarea></div></div>
+      <button onclick="processPayment()" id="payButton" class="w-full btn-primary py-3 rounded-full font-semibold mt-4">Pay Securely</button>
+    </div>
+  </div>
+</div>
+<script>
+// --------------------------------------------------------------
+// COMPLETE JAVASCRIPT – same as index, but filters for Vegetables & Fruits
+// --------------------------------------------------------------
+const API_BASE = 'http://localhost:5000/api';
+let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+let token = localStorage.getItem('token') || null;
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+let allProducts = [];
+let categoryProducts = [];
+let filteredProducts = [];
+let itemsBeingPurchased = [];
+
+// Helper functions (identical to index)
+function getAuthHeaders() {
+  const t = localStorage.getItem('token');
+  return { 'Content-Type': 'application/json', 'Authorization': t ? `Bearer ${t}` : '' };
+}
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `<i class="${type === 'success' ? 'ri-check-line' : 'ri-alert-line'}"></i><span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+function updateHeaderUI() {
+  const user = JSON.parse(localStorage.getItem('currentUser'));
+  const link = document.getElementById('accountLink');
+  const text = document.getElementById('accountText');
+  if (user) {
+    link.classList.remove('bg-gray-200');
+    link.classList.add('bg-primary', 'hover:bg-orange-600');
+    text.textContent = `Hello, ${user.name.split(' ')[0]}`;
+    text.classList.remove('text-gray-800');
+    text.classList.add('text-white');
+    const icon = link.querySelector('i');
+    if (icon) { icon.classList.remove('text-gray-600'); icon.classList.add('text-white'); }
+  } else {
+    link.classList.remove('bg-primary', 'hover:bg-orange-600');
+    link.classList.add('bg-gray-200');
+    text.textContent = 'My Account';
+    text.classList.remove('text-white');
+    text.classList.add('text-gray-800');
+    const icon = link.querySelector('i');
+    if (icon) { icon.classList.remove('text-white'); icon.classList.add('text-gray-600'); }
+  }
+}
+function getRatingStars(rating) {
+  const full = Math.floor(rating);
+  let stars = '';
+  for (let i = 0; i < 5; i++) stars += `<i class="${i < full ? 'ri-star-fill' : 'ri-star-line'} text-yellow-400 text-sm"></i>`;
+  return `<div class="flex items-center gap-1">${stars}<span class="text-xs text-gray-500 ml-1">(${rating})</span></div>`;
+}
+
+// Load products from API and filter for Vegetables & Fruits
+async function loadCategoryProducts() {
+  const loading = document.getElementById('loadingSpinner');
+  const grid = document.getElementById('productGrid');
+  loading.classList.remove('hidden');
+  grid.classList.add('hidden');
+  try {
+    const res = await fetch(`${API_BASE}/products`);
+    const data = await res.json();
+    allProducts = data;
+    // Filter for categories "Vegetables" OR "Fruits" (case-insensitive)
+   categoryProducts = allProducts.filter(p => 
+  p.category === 'Dairy'
+);
+    applyFiltersAndRender();
+  } catch (error) {
+    console.error(error);
+    grid.innerHTML = '<p class="text-center text-red-500 col-span-full">Failed to load products</p>';
+  } finally {
+    loading.classList.add('hidden');
+    grid.classList.remove('hidden');
+  }
+}
+
+function applyFiltersAndRender() {
+  let products = [...categoryProducts];
+  // Price filter
+  const priceVal = document.querySelector('input[name="priceFilter"]:checked')?.value || 'all';
+  if (priceVal !== 'all') {
+    products = products.filter(p => {
+      if (priceVal === 'under50') return p.price < 50;
+      if (priceVal === '50-100') return p.price >= 50 && p.price <= 100;
+      if (priceVal === '100-200') return p.price >= 100 && p.price <= 200;
+      if (priceVal === 'above200') return p.price > 200;
+      return true;
+    });
+  }
+  // Stock filter
+  const inStockOnly = document.getElementById('inStockOnly')?.checked || false;
+  if (inStockOnly) products = products.filter(p => p.inStock === true);
+  // Rating filter
+  const ratingVal = document.querySelector('input[name="ratingFilter"]:checked')?.value;
+  if (ratingVal) products = products.filter(p => (p.rating || 0) >= parseFloat(ratingVal));
+  // Sort
+  const sortVal = document.getElementById('sortSelect')?.value || 'default';
+  if (sortVal === 'price_asc') products.sort((a,b) => a.price - b.price);
+  else if (sortVal === 'price_desc') products.sort((a,b) => b.price - a.price);
+  else if (sortVal === 'name_asc') products.sort((a,b) => a.name.localeCompare(b.name));
+  else if (sortVal === 'rating_desc') products.sort((a,b) => (b.rating||0) - (a.rating||0));
+  filteredProducts = products;
+  renderProducts();
+}
+
+function renderProducts() {
+  const container = document.getElementById('productGrid');
+  const noResults = document.getElementById('noResults');
+  const productCount = document.getElementById('productCount');
+  if (filteredProducts.length === 0) {
+    container.innerHTML = '';
+    noResults.classList.remove('hidden');
+    productCount.textContent = '0 products';
+    return;
+  }
+  noResults.classList.add('hidden');
+  productCount.textContent = `${filteredProducts.length} product${filteredProducts.length > 1 ? 's' : ''}`;
+  container.innerHTML = filteredProducts.map(p => `
+    <div class="product-card p-4">
+      <img src="${p.image}" class="w-full h-40 object-cover rounded-2xl cursor-pointer mb-3" onclick="openProductModal('${p._id}')">
+      <h4 class="font-medium cursor-pointer hover:text-primary" onclick="openProductModal('${p._id}')">${p.name}</h4>
+      <div class="flex items-center text-yellow-400 text-sm mb-2">${getRatingStars(p.rating || 4.5)}</div>
+      <div class="flex justify-between items-center"><span class="text-primary font-bold">₹${p.price}</span><span class="text-gray-500 text-sm">/${p.unit}</span></div>
+      <button onclick="addToCart('${p._id}')" class="w-full mt-3 btn-primary py-2 rounded-full font-medium">Add to Cart</button>
+    </div>
+  `).join('');
+}
+
+function resetFilters() {
+  document.querySelectorAll('input[name="priceFilter"]').forEach(r => r.checked = false);
+  document.querySelector('input[name="priceFilter"][value="all"]').checked = true;
+  document.getElementById('inStockOnly').checked = false;
+  document.getElementById('sortSelect').value = 'default';
+  document.querySelectorAll('input[name="ratingFilter"]').forEach(r => r.checked = false);
+  applyFiltersAndRender();
+}
+
+// ========== CART, WISHLIST, CHECKOUT (identical to index) ==========
+function updateCartUI() {
+  localStorage.setItem('cart', JSON.stringify(cart));
+  const cartCount = document.getElementById('cartCount');
+  const cartItemsDiv = document.getElementById('cartItems');
+  const cartFooter = document.getElementById('cartFooter');
+  const cartTotalSpan = document.getElementById('cartTotal');
+  const totalItems = cart.reduce((s, i) => s + i.quantity, 0);
+  const totalPrice = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+  if (cartCount) cartCount.textContent = totalItems;
+  if (cartItemsDiv) {
+    if (cart.length === 0) {
+      cartItemsDiv.innerHTML = `<div class="text-center text-gray-500 py-8"><i class="ri-shopping-cart-line text-4xl"></i><p>Your cart is empty</p></div>`;
+      if (cartFooter) cartFooter.classList.add('hidden');
+    } else {
+      cartItemsDiv.innerHTML = cart.map(item => `
+        <div class="flex gap-3 py-3 border-b">
+          <img src="${item.image}" class="w-16 h-16 object-cover rounded-xl">
+          <div class="flex-1">
+            <h5 class="font-medium">${item.name}</h5>
+            <p class="text-primary">₹${item.price}/${item.unit}</p>
+            <div class="flex items-center gap-2 mt-2">
+              <button onclick="updateQuantity('${item._id}', -1)" class="w-8 h-8 bg-gray-100 rounded-full hover:bg-gray-200">-</button>
+              <span>${item.quantity}</span>
+              <button onclick="updateQuantity('${item._id}', 1)" class="w-8 h-8 bg-gray-100 rounded-full hover:bg-gray-200">+</button>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="font-semibold">₹${item.price * item.quantity}</p>
+            <button onclick="removeFromCart('${item._id}')" class="text-red-500 text-sm hover:text-red-700">Remove</button>
+          </div>
+        </div>
+      `).join('');
+      if (cartFooter) cartFooter.classList.remove('hidden');
+      if (cartTotalSpan) cartTotalSpan.textContent = `₹${totalPrice}`;
+    }
+  }
+}
+function addToCart(productId) {
+  const product = categoryProducts.find(p => p._id === productId);
+  if (!product) return;
+  const existing = cart.find(i => i._id === productId);
+  if (existing) existing.quantity++;
+  else cart.push({ ...product, quantity: 1 });
+  updateCartUI();
+  showToast(`${product.name} added to cart!`);
+}
+function removeFromCart(productId) { cart = cart.filter(i => i._id !== productId); updateCartUI(); }
+function updateQuantity(productId, change) { const item = cart.find(i => i._id === productId); if (item) { item.quantity += change; if (item.quantity <= 0) removeFromCart(productId); else updateCartUI(); } }
+function toggleCart() { document.getElementById('cartOverlay').classList.toggle('active'); document.getElementById('cartSidebar').classList.toggle('open'); }
+
+async function openProductModal(productId) {
+  let product = categoryProducts.find(p => p._id === productId);
+  if (!product) {
+    const res = await fetch(`${API_BASE}/products/${productId}`);
+    product = await res.json();
+  }
+  const modalContent = document.getElementById('productModalContent');
+  modalContent.innerHTML = `
+    <div class="grid md:grid-cols-2 gap-6">
+      <img src="${product.image}" class="w-full rounded-2xl">
+      <div>
+        <h2 class="text-2xl font-bold">${product.name}</h2>
+        <div class="flex items-center text-yellow-400 my-2">${getRatingStars(product.rating || 4.5)}</div>
+        <div class="text-3xl font-bold text-primary">₹${product.price}<span class="text-base text-gray-500 ml-1">/${product.unit}</span></div>
+        <p class="text-gray-600 my-4">${product.description || 'Fresh and high quality product.'}</p>
+        <button onclick="addToCart('${product._id}'); closeProductModal();" class="w-full btn-primary py-3 rounded-full font-semibold">Add to Cart</button>
+        <button onclick="buyNow('${product._id}'); closeProductModal();" class="w-full mt-3 border border-primary text-primary py-3 rounded-full font-semibold hover:bg-primary hover:text-white transition">Buy Now</button>
+        <button onclick="addToWishlist('${product._id}')" class="w-full mt-3 border border-gray-300 text-gray-700 py-2 rounded-full hover:bg-gray-50 transition">❤️ Add to Wishlist</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('productModalOverlay').classList.add('active');
+  document.getElementById('productModalContainer').classList.add('active');
+}
+function closeProductModal() { document.getElementById('productModalOverlay').classList.remove('active'); document.getElementById('productModalContainer').classList.remove('active'); }
+
+async function addToWishlist(productId) {
+  const t = localStorage.getItem('token');
+  if (!t) { showToast('Please login first', 'error'); window.location.href='account.html'; return; }
+  try {
+    const res = await fetch(`${API_BASE}/wishlist`, { method:'POST', headers:getAuthHeaders(), body:JSON.stringify({ productId }) });
+    const data = await res.json();
+    if(res.ok && data.success) showToast('Added to wishlist!');
+    else showToast(data.message || 'Already in wishlist', 'error');
+  } catch(e) { showToast('Server error', 'error'); }
+}
+function buyNow(productId) { const p = categoryProducts.find(p=>p._id===productId); if(p) openPayment([{...p, quantity:1, _id:p._id}]); }
+function checkoutCart() { if(cart.length===0) showToast('Cart empty','error'); else { toggleCart(); openPayment([...cart]); } }
+
+function openPayment(items) {
+  const user = localStorage.getItem('currentUser');
+  if(!user) { showToast('Please login to checkout','error'); return; }
+  itemsBeingPurchased = items;
+  const total = items.reduce((s,i)=>s+(i.price*i.quantity),0);
+  document.getElementById('paymentSubtotal').textContent = `₹${total}`;
+  document.getElementById('paymentTotal').textContent = `₹${total}`;
+  document.getElementById('paymentModalOverlay').classList.add('active');
+  document.getElementById('paymentModal').classList.add('active');
+  const u = JSON.parse(user);
+  const addrInput = document.getElementById('addressInput');
+  if(addrInput && u.addresses && u.addresses[0]) addrInput.value = `${u.addresses[0].street}, ${u.addresses[0].city}, ${u.addresses[0].state} - ${u.addresses[0].zip}, Ph: ${u.addresses[0].phone}`;
+}
+function closePayment() {
+  document.getElementById('paymentModalOverlay').classList.remove('active');
+  document.getElementById('paymentModal').classList.remove('active');
+  document.querySelectorAll('input[name="payment"]').forEach(r=>r.checked=false);
+  document.getElementById('upiForm').classList.add('hidden');
+  document.getElementById('cardForm').classList.add('hidden');
+  document.getElementById('codForm').classList.add('hidden');
+}
+
+async function processPayment() {
+  const t = localStorage.getItem('token');
+  if(!t) { showToast('Please login first','error'); window.location.href='account.html'; return; }
+  const selected = document.querySelector('input[name="payment"]:checked');
+  if(!selected) { showToast('Select payment method','error'); return; }
+  const method = selected.value;
+  let valid = false;
+  if(method==='upi') { const upiId=document.getElementById('upiId').value, upiPin=document.getElementById('upiPin').value; if(upiId && upiId.includes('@') && upiPin.length===4) valid=true; else showToast('Invalid UPI details','error'); }
+  else if(method==='card') { const card=document.getElementById('cardNumber').value.replace(/\s/g,''), exp=document.getElementById('expiry').value, cvv=document.getElementById('cvv').value; if(card.length===16 && exp.match(/^\d{2}\/\d{2}$/) && cvv.length===3) valid=true; else showToast('Invalid card details','error'); }
+  else if(method==='cod') { const addr=document.getElementById('addressInput').value; if(addr && addr.length>10) valid=true; else showToast('Enter delivery address','error'); }
+  if(!valid) return;
+  const payBtn = document.getElementById('payButton');
+  payBtn.innerHTML = '<i class="ri-loader-4-line animate-spin mr-2"></i>Processing...';
+  payBtn.disabled = true;
+  const orderData = {
+    items: itemsBeingPurchased.map(i=>({ productId:i._id||i.id, quantity:i.quantity, price:i.price })),
+    totalAmount: itemsBeingPurchased.reduce((s,i)=>s+(i.price*i.quantity),0),
+    paymentMethod: method,
+    shippingAddress: method==='cod' ? document.getElementById('addressInput').value : 'Address saved in profile'
+  };
+  try {
+    const res = await fetch(`${API_BASE}/orders`, { method:'POST', headers:getAuthHeaders(), body:JSON.stringify(orderData) });
+    const data = await res.json();
+    if(res.ok && data.success) {
+      showToast('Order placed successfully!');
+      const purchasedIds = itemsBeingPurchased.map(i=>i._id||i.id);
+      cart = cart.filter(c=>!purchasedIds.includes(c._id||c.id));
+      updateCartUI();
+      closePayment();
+      setTimeout(()=>window.location.href='account.html',1500);
+    } else throw new Error(data.message||'Order failed');
+  } catch(e) { showToast(e.message,'error'); payBtn.innerHTML='Pay Securely'; payBtn.disabled=false; }
+}
+
+// Search (over all products, not just category)
+const searchInput = document.getElementById('searchInput');
+const searchDropdown = document.getElementById('searchDropdown');
+const searchResults = document.getElementById('searchResults');
+let searchTimeout;
+if(searchInput) {
+  searchInput.addEventListener('focus',()=>searchDropdown.classList.remove('hidden'));
+  searchInput.addEventListener('blur',()=>setTimeout(()=>searchDropdown.classList.add('hidden'),200));
+  searchInput.addEventListener('input',(e)=>{
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(()=>{
+      const q = e.target.value.toLowerCase().trim();
+      if(q.length>0){
+        const filtered = allProducts.filter(p=>p.name.toLowerCase().includes(q));
+        searchResults.innerHTML = filtered.slice(0,8).map(p=>`
+          <div class="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer border-b" onclick="openProductModal('${p._id}'); searchDropdown.classList.add('hidden');">
+            <img src="${p.image}" class="w-12 h-12 object-cover rounded-full"><div><div class="font-medium">${p.name}</div><div class="text-primary">₹${p.price}</div></div>
+          </div>
+        `).join('');
+        if(filtered.length===0) searchResults.innerHTML = '<div class="text-center text-gray-500 py-4">No products found</div>';
+      } else searchResults.innerHTML = '';
+    },300);
+  });
+}
+
+// Payment method switching
+document.querySelectorAll('input[name="payment"]').forEach(radio=>{
+  radio.addEventListener('change',function(){
+    document.getElementById('upiForm').classList.add('hidden');
+    document.getElementById('cardForm').classList.add('hidden');
+    document.getElementById('codForm').classList.add('hidden');
+    if(this.value==='upi') document.getElementById('upiForm').classList.remove('hidden');
+    else if(this.value==='card') document.getElementById('cardForm').classList.remove('hidden');
+    else if(this.value==='cod') document.getElementById('codForm').classList.remove('hidden');
+    document.querySelectorAll('input[name="payment"]').forEach(r=>{ const d=r.closest('label')?.querySelector('.w-2.h-2'); if(d) d.classList.add('hidden'); });
+    const dot = this.closest('label')?.querySelector('.w-2.h-2');
+    if(dot) dot.classList.remove('hidden');
+  });
+});
+document.getElementById('cartOverlay')?.addEventListener('click',toggleCart);
+
+function toggleMobileFilters() { document.getElementById('mobileFilterModal').classList.toggle('hidden'); document.getElementById('mobileFilterModal').classList.toggle('flex'); }
+function applyMobileFilters() {
+  const price = document.querySelector('input[name="mobilePrice"]:checked')?.value || 'all';
+  document.querySelector(`input[name="priceFilter"][value="${price}"]`).checked = true;
+  const sort = document.getElementById('mobileSortSelect').value;
+  document.getElementById('sortSelect').value = sort;
+  const inStock = document.getElementById('mobileInStockOnly').checked;
+  document.getElementById('inStockOnly').checked = inStock;
+  const rating = document.querySelector('input[name="mobileRating"]:checked')?.value;
+  if(rating) document.querySelector(`input[name="ratingFilter"][value="${rating}"]`).checked = true;
+  toggleMobileFilters();
+  applyFiltersAndRender();
+}
+
+// Initialization
+document.addEventListener('DOMContentLoaded', () => {
+  updateHeaderUI();
+  updateCartUI();
+  loadCategoryProducts();
+  window.addEventListener('storage', updateHeaderUI);
+  document.getElementById('sortSelect')?.addEventListener('change', applyFiltersAndRender);
+  document.getElementById('inStockOnly')?.addEventListener('change', applyFiltersAndRender);
+  document.querySelectorAll('input[name="priceFilter"]').forEach(r => r.addEventListener('change', applyFiltersAndRender));
+  document.querySelectorAll('input[name="ratingFilter"]').forEach(r => r.addEventListener('change', applyFiltersAndRender));
+});
+</script>
+</body>
+</html>
